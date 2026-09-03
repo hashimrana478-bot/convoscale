@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConvoScale — High-Performance Chat Platform</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h2>ConvoScale</h2>
+          <span class="badge">10k+ RPM Architecture</span>
+        </div>
+      </div>
+
+      <div class="user-card" id="userCard">
+        <div class="avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <strong id="userName">Not Logged In</strong>
+          <span id="userEmail">Authenticate below</span>
+        </div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button id="newConvoBtn" class="btn btn-primary" disabled>+ New Conversation</button>
+      </div>
+
+      <div class="convo-list-section">
+        <h3>Conversations</h3>
+        <div class="convo-list" id="convoList">
+          <div class="empty-state">Log in to view conversations</div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="toggleStatsBtn" class="btn btn-outline">📊 System Metrics</button>
+        <button id="authModalBtn" class="btn btn-secondary">Switch User / Login</button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="chat-area">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="header-details">
+          <h2 id="currentConvoTitle">Select a Conversation</h2>
+          <span id="currentConvoMeta" class="meta-info"></span>
+        </div>
+        <div class="header-metrics" id="headerMetrics">
+          <span class="metric-tag" id="lastLatencyTag">Latency: -- ms</span>
+          <span class="metric-tag" id="rateLimitTag">Rate Limit: --</span>
+        </div>
+      </header>
+
+      <!-- Message History -->
+      <div class="messages-container" id="messagesContainer">
+        <div class="welcome-box">
+          <h3>Welcome to ConvoScale</h3>
+          <p>This messaging engine is built to demonstrate production database scalability, ACID transaction consistency, idempotency duplicate protection, and Redis caching.</p>
+          <div class="hints">
+            <span>Try typing:</span>
+            <code>hello</code>
+            <code>architecture</code>
+            <code>scale</code>
+            <code>status</code>
+            <code>ping</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Notification Banner -->
+      <div id="statusBanner" class="status-banner hidden"></div>
+
+      <!-- Controls & Input -->
+      <footer class="chat-footer">
+        <div class="advanced-controls">
+          <label class="control-toggle">
+            <input type="checkbox" id="testIdempotencyToggle">
+            <span>Force Replay Idempotency Key (Duplicate Click Protection)</span>
+          </label>
+          <label class="control-toggle">
+            <input type="checkbox" id="simulateFailureToggle">
+            <span>Simulate Failure Mid-Transaction (Verify Rollback)</span>
+          </label>
+        </div>
+
+        <form id="messageForm" class="message-input-form">
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Type a message or keyword (e.g. 'architecture', 'scale')..."
+            autocomplete="off"
+            disabled
+          >
+          <button type="submit" id="sendBtn" class="btn btn-send" disabled>
+            Send Message 🚀
+          </button>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <h3>ConvoScale Authentication</h3>
+      <p class="modal-sub">Log in or select demo account to issue JWT</p>
+      <div class="quick-demo-buttons">
+        <button id="quickAliceBtn" class="btn btn-secondary">Login as Demo Alice (Engineer)</button>
+        <button id="quickBobBtn" class="btn btn-secondary">Login as Demo Bob (SRE)</button>
+      </div>
+      <div class="divider"><span>OR</span></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="user@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Minimum 8 characters">
+      </div>
+      <div class="form-group" id="nameGroup" style="display:none;">
+        <label>Full Name</label>
+        <input type="text" id="authName" placeholder="Your Name">
+      </div>
+      <div class="modal-actions">
+        <button id="authSubmitBtn" class="btn btn-primary">Login</button>
+        <button id="authToggleModeBtn" class="btn btn-link">Need an account? Register</button>
+        <button id="closeModalBtn" class="btn btn-outline">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div id="statsModal" class="modal">
+    <div class="modal-content stats-modal">
+      <div class="modal-header">
+        <h3>System & Database Health</h3>
+        <button id="closeStatsBtn" class="btn btn-icon">&times;</button>
+      </div>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <span class="label">Total Messages</span>
+          <strong id="statMsgs">--</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">Total Conversations</span>
+          <strong id="statConvos">--</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">Database Status</span>
+          <strong id="statDb">--</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">Redis Caching</span>
+          <strong id="statRedis">--</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">DB Pool Available</span>
+          <strong id="statPool">--</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">Uptime</span>
+          <strong id="statUptime">--</strong>
+        </div>
+      </div>
+      <div class="raw-stats">
+        <h4>Raw Health Metrics:</h4>
+        <pre id="rawStatsJson">Loading...</pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿{
+  "name": "convoscale",
+  "version": "1.0.0",
+  "description": "ConvoScale — High-Performance Chat Backend (10,000+ RPM)",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node tests/run-tests.js",
+    "seed": "node src/db/seed.js",
+    "benchmark": "node load-tests/benchmark.js"
+  },
+  "keywords": [
+    "chat",
+    "backend",
+    "postgresql",
+    "redis",
+    "scalability",
+    "concurrency",
+    "acid-transactions",
+    "rate-limiting",
+    "high-performance"
+  ],
+  "author": "ConvoScale Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.4.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "autocannon": "^7.15.0",
+    "ioredis-mock": "^8.9.0",
+    "pg-mem": "^2.8.1",
+    "pino-pretty": "^13.0.0"
+  }
+}

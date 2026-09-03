@@ -1,0 +1,77 @@
+﻿version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: convoscale-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://convoscale_user:convoscale_pass@postgres:5432/convoscale
+      - REDIS_URL=redis://redis:6379
+      - DB_POOL_MIN=10
+      - DB_POOL_MAX=30
+      - USE_EMBEDDED_ENGINES=false
+      - JWT_SECRET=convoscale-production-secure-key-32-chars-minimum
+      - JWT_EXPIRES_IN=24h
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      - LOG_LEVEL=info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - convoscale-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: convoscale-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: convoscale_user
+      POSTGRES_PASSWORD: convoscale_pass
+      POSTGRES_DB: convoscale
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U convoscale_user -d convoscale"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - convoscale-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: convoscale-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - convoscale-net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  convoscale-net:
+    driver: bridge
